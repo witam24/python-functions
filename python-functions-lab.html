@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Python 函數實驗室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+:root{
+  --ground:#F2F4F7; --surface:#FFFFFF; --surface2:#E9EDF2; --ink:#16202B; --muted:#586473; --line:#D6DCE4;
+  --accent:#2A57D1; --accent-ink:#FFFFFF;
+  --param:#0B7F71; --param-bg:#DDF3EF; --arg:#B8306F; --arg-bg:#F9E1EC; --ret:#A86300; --ret-bg:#FCEBCB;
+  --ok:#18804A; --ok-bg:#DDF2E5; --bad:#C0392B; --bad-bg:#FBE3E0;
+  --code-bg:#101821; --code-ink:#DDE4EC; --code-dim:#5E6D7E; --code-line:#1C2835;
+  --k-kw:#86B4FF; --k-str:#F0BC86; --k-num:#E3A3FF; --k-com:#7D8B9B; --k-bi:#7EE0C8;
+  --c-param:#45D3C0; --c-arg:#FF8CC3; --c-ret:#FFC75E;
+  --mono:"JetBrains Mono","Noto Sans TC",ui-monospace,Menlo,Consolas,monospace;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --serif:"Noto Serif TC","PMingLiU",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1218; --surface:#141C25; --surface2:#1B2530; --ink:#E5EAF0; --muted:#98A4B2; --line:#27323F;
+    --accent:#7F9EFF; --accent-ink:#0C1218;
+    --param:#43CDB9; --param-bg:#0F3531; --arg:#F37FB5; --arg-bg:#3E1A2C; --ret:#F2B54E; --ret-bg:#3B2B0E;
+    --ok:#4FCB84; --ok-bg:#12321F; --bad:#FF7A6B; --bad-bg:#3A1A17;
+    --code-bg:#080D12; --code-line:#16202B;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1218; --surface:#141C25; --surface2:#1B2530; --ink:#E5EAF0; --muted:#98A4B2; --line:#27323F;
+  --accent:#7F9EFF; --accent-ink:#0C1218;
+  --param:#43CDB9; --param-bg:#0F3531; --arg:#F37FB5; --arg-bg:#3E1A2C; --ret:#F2B54E; --ret-bg:#3B2B0E;
+  --ok:#4FCB84; --ok-bg:#12321F; --bad:#FF7A6B; --bad-bg:#3A1A17;
+  --code-bg:#080D12; --code-line:#16202B;
+}
+html{font-size:16px}
+html.proj{font-size:20px}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:1rem;line-height:1.75}
+*{box-sizing:border-box}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+code,.mono{font-family:var(--mono);font-size:.92em}
+.wrap{max-width:1060px;margin:0 auto;padding-inline:20px;padding-block:0 96px}
+
+/* header */
+.top{padding-block:40px 20px;display:grid;gap:14px}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;color:var(--muted);font-weight:500}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(2.1rem,5vw,3.2rem);line-height:1.2;margin:0;text-wrap:balance}
+h1 .py{font-family:var(--mono);font-weight:600;font-size:.62em;color:var(--accent);vertical-align:.25em;margin-right:.3em}
+.lede{max-width:62ch;color:var(--muted);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:.9rem}
+.legend b{font-weight:500}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:1px 10px;border-radius:999px;font-family:var(--mono);font-size:.85rem;font-weight:600;white-space:nowrap}
+.chip.p{background:var(--param-bg);color:var(--param)}
+.chip.a{background:var(--arg-bg);color:var(--arg)}
+.chip.r{background:var(--ret-bg);color:var(--ret)}
+.param{color:var(--param);font-weight:600}
+.arg{color:var(--arg);font-weight:600}
+.retv{color:var(--ret);font-weight:600}
+
+/* nav */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-20px;padding-inline:20px}
+nav.toc .row{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none;align-items:center}
+nav.toc a{flex:none;text-decoration:none;color:var(--muted);font-size:.88rem;padding:4px 12px;border-radius:6px;border:1px solid transparent}
+nav.toc a:hover{color:var(--ink);border-color:var(--line)}
+nav.toc a span{font-family:var(--mono);color:var(--accent);margin-right:4px}
+.navr{margin-left:auto;display:flex;gap:6px;flex:none;align-items:center}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.lang button{background:var(--surface);border:0;padding:4px 11px;font-size:.85rem;cursor:pointer;font-weight:500}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.projbtn{flex:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 12px;font-size:.85rem;cursor:pointer}
+.projbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* sections */
+section{padding-top:56px;scroll-margin-top:56px}
+.sh{display:grid;gap:6px;margin-bottom:20px}
+.sh .no{font-family:var(--mono);font-size:.8rem;color:var(--accent);letter-spacing:.08em}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(1.5rem,3.2vw,2rem);line-height:1.3;margin:0;text-wrap:balance}
+h3{font-size:1.05rem;margin:0 0 8px;font-weight:700}
+.sh p{margin:0;max-width:66ch;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media (max-width:780px){.two{grid-template-columns:1fr}}
+.note{border-left:3px solid var(--accent);background:var(--surface2);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.95rem}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+
+/* code */
+.code{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.9rem;line-height:1.7;border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:pre;margin:0}
+.t-kw{color:var(--k-kw);font-weight:600}.t-str{color:var(--k-str)}.t-num{color:var(--k-num)}.t-com{color:var(--k-com);font-style:italic}.t-bi{color:var(--k-bi)}
+.code .cp{color:var(--c-param);font-weight:600}.code .ca{color:var(--c-arg);font-weight:600}.code .cr{color:var(--c-ret);font-weight:600}
+
+/* buttons */
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:7px;padding:8px 16px;font-weight:700;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+.btn.ghost:hover{border-color:var(--accent)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{background:var(--surface2);border:1px solid transparent;border-radius:7px;padding:5px 12px;cursor:pointer;font-size:.88rem}
+.tab[aria-selected="true"]{background:var(--surface);border-color:var(--accent);color:var(--accent);font-weight:700}
+.tab code{font-size:.85rem}
+
+/* ---- 1 machine ---- */
+.mgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:780px){.mgrid{grid-template-columns:1fr}}
+.inputs{display:grid;gap:10px;margin:16px 0}
+.inputs label{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-size:.9rem}
+.inputs input{border:1px solid var(--line);background:var(--ground);border-radius:6px;padding:6px 10px;font-family:var(--mono);color:var(--arg);font-weight:600;min-width:0}
+.hist{margin-top:14px;font-size:.88rem}
+.hist table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.hist td,.hist th{padding:4px 8px;border-bottom:1px solid var(--line);text-align:left}
+.hist th{font-weight:500;color:var(--muted);font-size:.8rem}
+.hist td{font-family:var(--mono);font-size:.85rem}
+.machine{display:grid;justify-items:center;gap:0;padding-block:6px}
+.hopper{width:88%;background:var(--surface2);border:2px solid var(--line);border-bottom:0;clip-path:polygon(0 0,100% 0,86% 100%,14% 100%);padding:12px 18% 16px;text-align:center;min-height:92px;display:grid;align-content:center;gap:6px}
+.lbl{font-size:.75rem;letter-spacing:.1em;color:var(--muted)}
+.slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.slot{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px dashed var(--param);border-radius:6px;padding:1px 8px}
+.slot .v{color:var(--arg);font-weight:600;display:inline-block}
+.slot .v.drop{animation:drop .5s ease-out}
+@keyframes drop{from{transform:translateY(-26px);opacity:.1}to{transform:none;opacity:1}}
+.mbody{width:66%;min-width:240px;max-width:100%;border-radius:10px;border:2px solid var(--accent);background:var(--code-bg);padding:12px 14px;position:relative}
+.mbody .code{padding:0;background:transparent;font-size:.86rem}
+.mbody .gear{position:absolute;top:-12px;right:12px;background:var(--accent);color:var(--accent-ink);font-size:.72rem;padding:1px 8px;border-radius:999px;letter-spacing:.06em}
+.mbody.busy{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent)}
+.meval{margin-top:8px;font-family:var(--mono);font-size:.82rem;color:var(--code-ink);min-height:1.4em;border-top:1px dashed var(--code-line);padding-top:6px}
+.chute{width:40%;min-width:150px;background:var(--surface2);border:2px solid var(--line);border-top:0;clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);height:26px}
+.outbox{display:grid;justify-items:center;gap:4px;margin-top:8px}
+.retchip{font-family:var(--mono);font-weight:700;font-size:1.25rem;background:var(--ret-bg);color:var(--ret);border:2px solid var(--ret);border-radius:8px;padding:2px 18px;min-width:80px;text-align:center}
+.retchip.pop{animation:pop .5s ease-out}
+@keyframes pop{from{transform:translateY(-22px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.maths{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin-top:20px}
+.maths .eq{font-family:var(--mono);font-size:.95rem;background:var(--surface2);padding:8px 12px;border-radius:8px;white-space:nowrap}
+
+/* ---- 2 anatomy ---- */
+.anat{font-size:1.05rem;line-height:2.1}
+.tok{cursor:pointer;border-radius:4px;padding:1px 2px;border-bottom:2px dotted var(--code-dim)}
+.tok:hover{background:var(--code-line)}
+.tok.on{background:#2A3E5C;border-bottom-color:var(--c-ret);outline:1px solid var(--c-ret)}
+.ind{color:var(--code-dim)}
+.tipbox{min-height:150px}
+.tipbox .tag{display:inline-block;font-size:.78rem;letter-spacing:.08em;color:var(--accent);font-weight:700;margin-bottom:4px}
+.tipbox h3{font-size:1.2rem}
+.lab{margin-top:20px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.tg{display:inline-flex;gap:8px;align-items:center;background:var(--surface2);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:.9rem;border:1px solid var(--line)}
+.tg input{accent-color:var(--accent)}
+.console{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.88rem;border-radius:8px;padding:10px 14px;min-height:74px;white-space:pre-wrap}
+.console .err{color:#FF8A7A}
+.console .hd{color:var(--code-dim);font-size:.75rem;display:block;margin-bottom:2px;letter-spacing:.08em}
+.lab .code .mark{background:rgba(255,120,100,.18);outline:1px solid rgba(255,120,100,.6);border-radius:2px}
+
+/* ---- 3 params ---- */
+.cmp{width:100%;border-collapse:collapse;font-size:.92rem}
+.cmp th,.cmp td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp thead th{font-size:.82rem;color:var(--muted);font-weight:500}
+.tblwrap{overflow-x:auto}
+.pick{cursor:pointer;border-radius:5px;padding:0 4px;border:1px dashed var(--code-dim);position:relative}
+.pick[data-s="p"]{background:rgba(69,211,192,.18);border:1px solid var(--c-param);color:var(--c-param)}
+.pick[data-s="a"]{background:rgba(255,140,195,.18);border:1px solid var(--c-arg);color:var(--c-arg)}
+.pick[data-s="n"]{background:rgba(134,180,255,.15);border:1px solid var(--k-kw);color:var(--k-kw)}
+.pick.bad{outline:2px solid #FF6B5B;outline-offset:1px}
+.pick.good{outline:2px solid #4FCB84;outline-offset:1px}
+.keyrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;font-size:.85rem;align-items:center}
+.fb{margin-top:10px;font-size:.92rem;min-height:1.6em}
+.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+
+/* ---- 4 tracer ---- */
+.tr{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;margin-top:14px}
+@media (max-width:820px){.tr{grid-template-columns:1fr}}
+.lines{background:var(--code-bg);border-radius:8px;padding:10px 0;font-family:var(--mono);font-size:.9rem;overflow-x:auto}
+.ln{display:grid;grid-template-columns:2.2em 1.4em 1fr;align-items:center;padding:1px 12px 1px 4px;white-space:pre;color:var(--code-ink);min-height:1.75em}
+.ln .no{color:var(--code-dim);text-align:right;padding-right:6px;font-size:.8rem}
+.ln .ar{color:var(--c-ret);visibility:hidden}
+.ln.cur{background:#233650}
+.ln.cur .ar{visibility:visible}
+.note-step{background:var(--surface2);border-radius:8px;padding:12px 14px;margin-top:12px;min-height:5.5em;font-size:.95rem}
+.note-step .sc{font-family:var(--mono);font-size:.76rem;color:var(--muted);display:block;margin-bottom:2px}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.ctrls .kbd{font-size:.78rem;color:var(--muted);margin-left:auto}
+.frames{display:grid;gap:10px;align-content:start}
+.frame{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.frame .fh{font-size:.8rem;padding:4px 10px;background:var(--surface2);color:var(--muted);display:flex;justify-content:space-between}
+.frame.fn{border-color:var(--param)}
+.frame.fn .fh{background:var(--param-bg);color:var(--param);font-weight:700}
+.frame table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.86rem}
+.frame td{padding:4px 10px;border-top:1px solid var(--line)}
+.frame td:first-child{width:45%}
+.frame tr.new td{animation:flash 1s ease-out}
+@keyframes flash{from{background:var(--ret-bg)}to{background:transparent}}
+.frame .empty{padding:6px 10px;font-size:.82rem;color:var(--muted)}
+.frame tr.rt td{background:var(--ret-bg);color:var(--ret);font-weight:700}
+.outcon{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.86rem;border-radius:8px;padding:8px 12px;min-height:64px;white-space:pre-wrap}
+
+/* ---- 5 turtle ---- */
+.tt{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.tt{grid-template-columns:1fr}}
+.canvasbox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+canvas{width:100%;max-width:400px;aspect-ratio:1;display:block;margin:0 auto}
+.sl{display:grid;grid-template-columns:5.5em 1fr 3em;gap:10px;align-items:center;font-size:.9rem;margin-top:8px}
+.sl input{accent-color:var(--accent);width:100%}
+.sl output{font-family:var(--mono);font-weight:700;text-align:right}
+.callprev{font-family:var(--mono);font-size:1rem;margin-top:10px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.vs{grid-template-columns:1fr}}
+.vs .code{max-height:320px;overflow:auto;font-size:.8rem}
+.vs h3{font-size:.92rem}
+.bars{display:grid;gap:6px;margin-top:14px;font-size:.86rem}
+.bar{display:grid;grid-template-columns:5em 1fr 4.2em;gap:8px;align-items:center}
+.bar .tr2{height:14px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar .fill{height:100%;border-radius:4px;transition:width .4s}
+.bar .fill.a{background:var(--muted)}.bar .fill.b{background:var(--accent)}
+.bar span:last-child{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.adv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
+@media (max-width:860px){.adv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.adv{grid-template-columns:1fr}}
+.adv div{border-top:3px solid var(--accent);background:var(--surface);padding:12px 14px;border-radius:0 0 8px 8px;font-size:.9rem}
+.adv b{display:block;font-size:1rem;margin-bottom:4px}
+.adv .live{font-family:var(--mono);color:var(--accent);font-size:.82rem;display:block;margin-top:6px}
+
+/* ---- 6 practice ---- */
+.ex{display:grid;gap:14px}
+.ex .code select{font-family:var(--mono);font-size:.84rem;background:#1D2A38;color:var(--c-ret);border:1px dashed var(--c-ret);border-radius:5px;padding:1px 4px;max-width:260px}
+.ex .code select.ok{border:1px solid #4FCB84;color:#9AF0BE}
+.ex .code select.bad{border:1px solid #FF6B5B;color:#FFB1A8}
+.given{font-size:.82rem}
+
+/* ---- 7 quiz ---- */
+.quiz{display:grid;gap:16px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.q .qn{font-family:var(--mono);font-size:.78rem;color:var(--accent)}
+.q p{margin:4px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opt{text-align:left;background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;display:grid;grid-template-columns:1.6em 1fr;gap:6px;align-items:start}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .L{font-family:var(--mono);font-weight:700;color:var(--muted)}
+.opt pre{margin:0;font-family:var(--mono);font-size:.82rem;white-space:pre;overflow-x:auto}
+.opt.right{background:var(--ok-bg);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.expl{margin-top:10px;font-size:.92rem;border-left:3px solid var(--ok);padding:6px 12px;background:var(--surface2);border-radius:0 6px 6px 0}
+.expl.wrong{border-left-color:var(--bad)}
+.score{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.score .big{font-family:var(--serif);font-weight:900;font-size:1.8rem;font-variant-numeric:tabular-nums}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow" data-t="eyebrow">高中 ICT · 必修 D 計算思維與程式編寫 · 第 5 章 程式開發（二）</div>
+    <h1><span class="py">def</span><span data-t="h1">Python 函數實驗室</span></h1>
+    <p class="lede" data-t="lede">把程式碼包裝成可重用的「機器」：先玩函數機器，再拆解語法、分清參數與變元、逐步追蹤執行，最後用圖龜看看函數怎樣減少重複。</p>
+    <div class="legend"><b data-t="legend">全頁顏色代號：</b>
+      <span class="chip p">參數 parameter</span>
+      <span class="chip a">變元 argument</span>
+      <span class="chip r">傳回值 return value</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Sections">
+    <div class="row">
+      <a href="#machine"><span>1</span><b data-t="n1" style="font-weight:inherit">函數機器</b></a>
+      <a href="#syntax"><span>2</span><b data-t="n2" style="font-weight:inherit">語法拆解</b></a>
+      <a href="#params"><span>3</span><b data-t="n3" style="font-weight:inherit">參數與變元</b></a>
+      <a href="#trace"><span>4</span><b data-t="n4" style="font-weight:inherit">逐步追蹤</b></a>
+      <a href="#turtle"><span>5</span><b data-t="n5" style="font-weight:inherit">減少重複</b></a>
+      <a href="#practice"><span>6</span><b data-t="n6" style="font-weight:inherit">動手做</b></a>
+      <a href="#quiz"><span>7</span><b data-t="n7" style="font-weight:inherit">檢查站</b></a>
+      <div class="navr">
+        <div class="lang" role="group" aria-label="Language 語言">
+          <button id="lzh" aria-pressed="true" lang="zh-HK">中</button><button id="len" aria-pressed="false" lang="en">EN</button>
+        </div>
+        <button class="projbtn" id="projBtn" aria-pressed="false" data-t="proj">投影模式</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 1 -->
+  <section id="machine">
+    <div class="sh"><span class="no" data-t="p1">環節 1</span>
+      <h2 data-t="h2_1">函數就像一部機器</h2>
+      <p data-t="d1">從入口放入<span class="arg">變元</span>，機器內的<span class="param">參數</span>接收數值，執行主體後，從出口送出<span class="retv">傳回值</span>。試換不同的機器和輸入值。</p>
+    </div>
+    <div class="mgrid">
+      <div class="panel">
+        <h3 data-t="pickm">選擇一部機器</h3>
+        <div class="tabs" id="mTabs" role="tablist"></div>
+        <div class="inputs" id="mInputs"></div>
+        <button class="btn" id="mRun" data-t="mrun">▶ 呼叫函數</button>
+        <pre class="code" id="mCall" style="margin-top:14px"></pre>
+        <div class="hist"><table><thead><tr><th data-t="thcall">呼叫</th><th data-t="thret">傳回值</th></tr></thead><tbody id="mHist"></tbody></table></div>
+      </div>
+      <div>
+        <div class="machine" aria-live="polite">
+          <div class="hopper"><span class="lbl" data-t="hin">入口 · 參數接收變元</span><div class="slots" id="mSlots"></div></div>
+          <div class="mbody" id="mBody"><span class="gear" data-t="gear">函數主體</span><pre class="code" id="mCode"></pre><div class="meval" id="mEval"></div></div>
+          <div class="chute"></div>
+          <div class="outbox"><span class="lbl" data-t="hout">出口 · 傳回值</span><div class="retchip" id="mOut">?</div></div>
+        </div>
+        <div class="maths">
+          <div class="eq">x = 3 → 2x + 1 → 7</div>
+          <div class="small muted" data-t="maths">數學裏把 3 代入 2x + 1 得 7；選「f(x)」機器輸入 3，看看 Python 是否一樣。<span class="arg">變元</span>在執行時會取代<span class="param">參數</span>。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="syntax">
+    <div class="sh"><span class="no" data-t="p2">環節 2</span>
+      <h2 data-t="h2_2">拆解函數的語法</h2>
+      <p data-t="d2">按下程式碼中有虛線底的部分，看看每個部分的名稱和作用。</p>
+    </div>
+    <div class="two">
+      <pre class="code anat" id="anat"><span class="tok" data-k="def">def</span> <span class="tok" data-k="name">rect_area</span><span class="tok" data-k="paren">(</span><span class="tok cp" data-k="param">length, width</span><span class="tok" data-k="paren">)</span><span class="tok" data-k="colon">:</span>
+<span class="tok ind" data-k="indent">····</span>area = length * width
+<span class="tok ind" data-k="indent">····</span><span class="tok t-kw" data-k="return">return</span> <span class="tok cr" data-k="ret">area</span>
+
+<span class="t-com" data-t="ccall"># 呼叫函數</span>
+size = <span class="tok" data-k="call">rect_area</span>(<span class="tok ca" data-k="arg">4, 3</span>)
+print(size)   <span class="t-com"># 12</span></pre>
+      <div class="panel tipbox" id="tip" aria-live="polite"></div>
+    </div>
+
+    <div class="panel lab">
+      <h3 data-t="labh">錯誤實驗室：冒號與縮排</h3>
+      <p class="small muted" style="margin:0" data-t="labd">勾選或取消下列選項，觀察 Python 的輸出或錯誤訊息。</p>
+      <div class="toggles">
+        <label class="tg"><input type="checkbox" id="eColon" checked> <span data-t="tg1">第 1 行有冒號 <code>:</code></span></label>
+        <label class="tg"><input type="checkbox" id="eIndent" checked> <span data-t="tg2">第 2 行有縮排</span></label>
+        <label class="tg"><input type="checkbox" id="eBye"> <span data-t="tg3">第 3 行有縮排</span></label>
+      </div>
+      <div class="two">
+        <pre class="code" id="eCode"></pre>
+        <div class="console" id="eOut"></div>
+      </div>
+      <p class="small muted" id="eExplain" style="margin:10px 0 0"></p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="params">
+    <div class="sh"><span class="no" data-t="p3">環節 3</span>
+      <h2 data-t="h2_3">參數 vs 變元</h2>
+      <p data-t="d3">兩者經常被混淆：參數寫在「定義」裏，變元寫在「呼叫」裏。</p>
+    </div>
+    <div class="two">
+      <div class="panel tblwrap">
+        <table class="cmp">
+          <thead><tr><th></th><th><span class="chip p">參數 parameter</span></th><th><span class="chip a">變元 argument</span></th></tr></thead>
+          <tbody>
+            <tr><th data-t="r1">出現位置</th><td data-t="r1p"><code>def</code> 那一行的括號內</td><td data-t="r1a">呼叫函數時的括號內</td></tr>
+            <tr><th data-t="r2">是甚麼</th><td data-t="r2p">一個名稱（空位）</td><td data-t="r2a">實際的值</td></tr>
+            <tr><th data-t="r3">何時有值</th><td data-t="r3p">函數被呼叫時才收到值</td><td data-t="r3a">呼叫前已經有值</td></tr>
+            <tr><th data-t="r4">例子</th><td><code>def greet(<span class="param">name</span>):</code></td><td><code>greet(<span class="arg">"Alice"</span>)</code></td></tr>
+            <tr><th data-t="r5">對應方法</th><td colspan="2" data-t="r5v">按<b>次序</b>一一對應：第 1 個變元給第 1 個參數，如此類推。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3 data-t="pkh">小挑戰：標示每個部分</h3>
+        <p class="small muted" style="margin:0" data-t="pkd">按一下有框的部分可切換標籤：<span class="chip p">參數</span> → <span class="chip a">變元</span> → <span class="chip" style="color:var(--accent);background:var(--surface2)">函數名稱</span> → 未標示</p>
+        <pre class="code" id="pickCode" style="margin-top:12px"></pre>
+        <div class="ctrls"><button class="btn" id="pickCheck" data-t="check">檢查</button><button class="btn ghost" id="pickReset" data-t="reset">重設</button></div>
+        <div class="fb" id="pickFb" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="trace">
+    <div class="sh"><span class="no" data-t="p4">環節 4</span>
+      <h2 data-t="h2_4">逐步追蹤：程式怎樣「跳」進函數再回來</h2>
+      <p data-t="d4">選擇一個程式，按「下一步」觀察：正在執行哪一行、參數收到甚麼值、傳回值去了哪裏。</p>
+    </div>
+    <div class="panel">
+      <div class="tabs" id="trTabs" role="tablist"></div>
+      <div class="tr">
+        <div>
+          <div class="lines" id="trLines"></div>
+          <div class="note-step" id="trNote" aria-live="polite"></div>
+          <div class="ctrls">
+            <button class="btn ghost" id="trReset" data-t="trr">⟲ 重來</button>
+            <button class="btn ghost" id="trPrev" data-t="trp">◀ 上一步</button>
+            <button class="btn" id="trNext" data-t="trn">下一步 ▶</button>
+            <span class="kbd" data-t="kbd">鍵盤 ← → 亦可</span>
+          </div>
+        </div>
+        <div class="frames">
+          <div id="trFrames" class="frames"></div>
+          <div><div class="lbl" style="margin-bottom:4px" data-t="outl">輸出</div><div class="outcon" id="trOut"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="turtle">
+    <div class="sh"><span class="no" data-t="p5">環節 5</span>
+      <h2 data-t="h2_5">用函數減少重複：正多邊形</h2>
+      <p data-t="d5">正 n 邊形的規律：重複 n 次「前進、左轉」，每次轉 360 ÷ n 度。把這個規律寫成 <code>draw_shape</code> 函數，就不用一次又一次抄寫相似的 for 迴圈。多畫幾個形狀，比較兩個版本的程式碼長度。</p>
+    </div>
+    <div class="tt">
+      <div class="canvasbox">
+        <canvas id="tCanvas" width="400" height="400" aria-label="turtle canvas"></canvas>
+        <div class="sl"><label for="tSides"><span data-t="sides">邊數</span> <span class="param">sides</span></label><input type="range" id="tSides" min="3" max="10" value="5"><output id="tSidesO">5</output></div>
+        <div class="sl"><label for="tLen"><span data-t="len">邊長</span> <span class="param">length</span></label><input type="range" id="tLen" min="40" max="100" step="10" value="80"><output id="tLenO">80</output></div>
+        <div class="callprev" id="tCall"></div>
+        <div class="ctrls"><button class="btn" id="tDraw" data-t="draw">▶ 畫出來</button><button class="btn ghost" id="tClear" data-t="clear">清除畫布</button></div>
+      </div>
+      <div class="panel">
+        <div class="vs">
+          <div><h3 data-t="va">版本 A：不使用函數</h3><pre class="code" id="tA"></pre></div>
+          <div><h3 data-t="vb">版本 B：使用函數</h3><pre class="code" id="tB"></pre></div>
+        </div>
+        <div class="bars">
+          <div class="bar"><span data-t="bA">版本 A</span><div class="tr2"><div class="fill a" id="barA"></div></div><span id="numA"></span></div>
+          <div class="bar"><span data-t="bB">版本 B</span><div class="tr2"><div class="fill b" id="barB"></div></div><span id="numB"></span></div>
+        </div>
+        <p class="small muted" style="margin:8px 0 0" data-t="barn">行數不計空行。形狀愈多，函數版本的優勢愈明顯。</p>
+      </div>
+    </div>
+    <div class="adv">
+      <div><b data-t="a1">程式碼重用性</b><span data-t="a1d">同一個函數可畫任何邊數的正多邊形，冗餘程式碼更少。</span><span class="live" id="advReuse"></span></div>
+      <div><b data-t="a2">可維護性</b><span data-t="a2d">要改動畫法（例如改用 <code>t.right</code>），只需修改函數內一處。</span><span class="live" id="advMaint"></span></div>
+      <div><b data-t="a3">抽象化</b><span data-t="a3d">角度由函數自動計算（360 / sides），不用人手計算再寫入程式。</span><span class="live" id="advAbs"></span></div>
+      <div><b data-t="a4">可擴充性</b><span data-t="a4d">要畫新形狀，只需以新的變元再呼叫一次。</span><span class="live">draw_shape(8, 50)</span></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="practice">
+    <div class="sh"><span class="no" data-t="p6">環節 6</span>
+      <h2 data-t="h2_6">動手做：把重複的程式碼改寫成函數</h2>
+      <p data-t="d6">在每個方格選出正確答案，令改寫後的程式產生與原程式相同的輸出，然後按「檢查答案」。</p>
+    </div>
+    <div class="ex" id="exWrap"></div>
+  </section>
+
+  <!-- 7 -->
+  <section id="quiz">
+    <div class="sh"><span class="no" data-t="p7">環節 7</span>
+      <h2 data-t="h2_7">檢查站</h2>
+      <p data-t="d7">先預測，再作答。每題選一次即顯示解釋。</p>
+    </div>
+    <div class="quiz" id="quizWrap"></div>
+    <div class="panel score" style="margin-top:16px">
+      <span class="big" id="scoreNum">0 / 0</span>
+      <span class="muted small" id="scoreMsg"></span>
+      <button class="btn ghost" id="quizReset" style="margin-left:auto" data-t="qreset">重新作答</button>
+    </div>
+  </section>
+
+  <footer data-t="foot">概念對應課本第 5 章「Python 中的函數」（頁 5.3–5.8）：函數定義與縮排、帶參數的函數、傳回值、傳回多個值、使用函數的優點。本頁例子與題目為教學用途重新設計。</footer>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+let LANG='zh';
+try{ if(localStorage.getItem('fnlab-lang')==='en') LANG='en'; }catch(_){}
+const L=(zh,en)=>LANG==='zh'?zh:en;
+
+/* ---------- static English strings (Chinese is read from the page) ---------- */
+const EN={
+ eyebrow:'Senior Secondary ICT · Compulsory Part D: Computational Thinking and Programming · Ch. 5 Program Development (II)',
+ h1:'Python Function Lab',
+ lede:'Package code into reusable “machines”: play with a function machine, take the syntax apart, tell parameters from arguments, trace execution step by step, then use the turtle to see how functions cut repetition.',
+ legend:'Colour code:',
+ n1:'Function machine',n2:'Syntax',n3:'Parameters vs arguments',n4:'Step-by-step trace',n5:'Less repetition',n6:'Hands-on',n7:'Checkpoint',
+ proj:'Projector mode',
+ p1:'PART 1',p2:'PART 2',p3:'PART 3',p4:'PART 4',p5:'PART 5',p6:'PART 6',p7:'PART 7',
+ h2_1:'A function is like a machine',
+ d1:'Drop <span class="arg">arguments</span> in at the top, the <span class="param">parameters</span> receive them, the body runs, and a <span class="retv">return value</span> comes out at the bottom. Try different machines and inputs.',
+ pickm:'Pick a machine',mrun:'▶ Call function',thcall:'Call',thret:'Return value',
+ hin:'IN · parameters receive arguments',gear:'function body',hout:'OUT · return value',
+ maths:'In maths, substituting 3 into 2x + 1 gives 7. Pick the f(x) machine, enter 3 and check that Python agrees. When the function runs, the <span class="arg">argument</span> takes the place of the <span class="param">parameter</span>.',
+ h2_2:'Taking the syntax apart',d2:'Click any part with a dotted underline to see its name and job.',ccall:'# call the function',
+ labh:'Error lab: colons and indentation',labd:'Tick or untick the options and watch Python’s output or error message.',
+ tg1:'Line 1 has a colon <code>:</code>',tg2:'Line 2 is indented',tg3:'Line 3 is indented',
+ h2_3:'Parameters vs arguments',d3:'They are easy to mix up: parameters live in the <b>definition</b>, arguments live in the <b>call</b>.',
+ r1:'Where it appears',r1p:'In the brackets on the <code>def</code> line',r1a:'In the brackets when you call the function',
+ r2:'What it is',r2p:'A name (an empty slot)',r2a:'An actual value',
+ r3:'When it gets a value',r3p:'Only when the function is called',r3a:'Already has a value before the call',
+ r4:'Example',r5:'Matching',r5v:'Matched by <b>position</b>: the 1st argument goes to the 1st parameter, and so on.',
+ pkh:'Mini challenge: label each part',
+ pkd:'Click a boxed part to cycle its label: <span class="chip p">parameter</span> → <span class="chip a">argument</span> → <span class="chip" style="color:var(--accent);background:var(--surface2)">function name</span> → unlabelled',
+ check:'Check',reset:'Reset',
+ h2_4:'Step by step: how a program jumps into a function and back',
+ d4:'Pick a program and press Next to see which line is running, what the parameters receive and where the return value goes.',
+ trr:'⟲ Restart',trp:'◀ Back',trn:'Next ▶',kbd:'or use the ← → keys',outl:'OUTPUT',
+ h2_5:'Using functions to cut repetition: regular polygons',
+ d5:'The pattern for a regular n-sided polygon: repeat “forward, turn left” n times, turning 360 ÷ n degrees each time. Wrap that pattern in a <code>draw_shape</code> function and you never have to copy similar for loops again. Draw a few shapes and compare the length of the two versions.',
+ sides:'Sides',len:'Length',draw:'▶ Draw',clear:'Clear canvas',
+ va:'Version A: no function',vb:'Version B: with a function',bA:'Version A',bB:'Version B',
+ barn:'Blank lines are not counted. The more shapes you draw, the bigger the function’s advantage.',
+ a1:'Reusability',a1d:'One function draws a regular polygon with any number of sides, so there is less redundant code.',
+ a2:'Maintainability',a2d:'To change how shapes are drawn (e.g. use <code>t.right</code>), edit one place inside the function.',
+ a3:'Abstraction',a3d:'The function works out the angle (360 / sides), so nobody has to calculate it by hand.',
+ a4:'Extensibility',a4d:'To draw a new shape, just call the function again with new arguments.',
+ h2_6:'Hands-on: rewrite repeated code as a function',
+ d6:'Choose the right answer for each box so the rewritten program gives the same output as the original, then press “Check answers”.',
+ h2_7:'Checkpoint',d7:'Predict first, then answer. The explanation appears as soon as you choose.',qreset:'Try again',
+ foot:'Matches textbook Chapter 5 “Functions in Python” (pp. 5.3–5.8): defining functions and indentation, functions with parameters, return values, returning multiple values, and the advantages of functions. Examples and questions on this page were written afresh for teaching.'
+};
+const ZH={};
+document.querySelectorAll('[data-t]').forEach(el=>{ZH[el.dataset.t]=el.innerHTML});
+function applyStatic(){
+  document.documentElement.lang=L('zh-HK','en');
+  document.title=L('Python 函數實驗室','Python Function Lab');
+  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;el.innerHTML=LANG==='zh'?ZH[k]:(EN[k]??ZH[k])});
+  $('#lzh').setAttribute('aria-pressed',LANG==='zh');$('#len').setAttribute('aria-pressed',LANG==='en');
+}
+
+const KW=new Set(['def','return','if','else','elif','for','in','import','and','or','not','None','True','False','while']);
+const BI=new Set(['print','range','min','max','len','int','float','str','input']);
+function hl(src){
+  const re=/(#[^\n]*)|(f?"(?:[^"\\\n]|\\.)*"|f?'(?:[^'\\\n]|\\.)*')|([A-Za-z_][A-Za-z0-9_]*)|(\d+(?:\.\d+)?)/g;
+  let out='',last=0,m;
+  while((m=re.exec(src))){
+    out+=esc(src.slice(last,m.index));
+    if(m[1]) out+='<span class="t-com">'+esc(m[1])+'</span>';
+    else if(m[2]) out+='<span class="t-str">'+esc(m[2])+'</span>';
+    else if(m[3]) out+= KW.has(m[3])?'<span class="t-kw">'+m[3]+'</span>':BI.has(m[3])?'<span class="t-bi">'+m[3]+'</span>':m[3];
+    else out+='<span class="t-num">'+m[4]+'</span>';
+    last=re.lastIndex;
+  }
+  return out+esc(src.slice(last));
+}
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* projection mode */
+$('#projBtn').addEventListener('click',e=>{
+  const on=document.documentElement.classList.toggle('proj');
+  e.currentTarget.setAttribute('aria-pressed',on);
+  try{localStorage.setItem('fnlab-proj',on?'1':'0')}catch(_){}
+  drawTurtle();
+});
+try{ if(localStorage.getItem('fnlab-proj')==='1'){document.documentElement.classList.add('proj');$('#projBtn').setAttribute('aria-pressed','true')} }catch(_){}
+
+/* ============ 1. machine ============ */
+const MACH=[
+ {label:'double(x)',code:['def double(x):','    return x * 2'],params:['x'],defs:['3'],kind:'num',calc:a=>a[0]*2,show:a=>a[0]+' * 2'},
+ {label:'f(x)',code:['def f(x):','    return 2 * x + 1'],params:['x'],defs:['3'],kind:'num',calc:a=>2*a[0]+1,show:a=>'2 * '+a[0]+' + 1'},
+ {label:'rect_area(length, width)',code:['def rect_area(length, width):','    return length * width'],params:['length','width'],defs:['4','3'],kind:'num',calc:a=>a[0]*a[1],show:a=>a[0]+' * '+a[1]},
+ {label:'shout(word)',code:['def shout(word):','    return word.upper() + "!"'],params:['word'],defs:['hello'],kind:'str',calc:a=>a[0].toUpperCase()+'!',show:a=>'"'+a[0]+'".upper() + "!"'}
+];
+let mi=0, mBusy=false;
+function pyNum(v,isF){ if(isF&&Number.isInteger(v)) return v+'.0'; return String(Math.round(v*1e10)/1e10); }
+function colorParams(line,params){
+  let h=hl(line);
+  params.forEach(p=>{h=h.replace(new RegExp('\\b'+p+'\\b','g'),'<span class="cp">'+p+'</span>')});
+  return h;
+}
+function mSetup(keep){
+  const M=MACH[mi];
+  const prev=keep?M.params.map((_,i)=>$('#mIn'+i)?.value):null;
+  $('#mTabs').innerHTML=MACH.map((m,i)=>`<button class="tab" role="tab" aria-selected="${i===mi}" data-i="${i}"><code>${esc(m.label)}</code></button>`).join('');
+  $('#mInputs').innerHTML=M.params.map((p,i)=>`<label>${L(`變元 ${i+1}（傳給 <span class="param">${p}</span>）`,`Argument ${i+1} (to <span class="param">${p}</span>)`)}<input id="mIn${i}" value="${esc(prev&&prev[i]!=null?prev[i]:M.defs[i])}" ${M.kind==='num'?'inputmode="decimal"':''}></label>`).join('');
+  $('#mCode').innerHTML=M.code.map(l=>colorParams(l,M.params)).join('\n');
+  $('#mSlots').innerHTML=M.params.map((p,i)=>`<span class="slot"><span class="param">${p}</span> = <span class="v" id="mS${i}">?</span></span>`).join('');
+  $('#mEval').textContent=L('等待呼叫…','Waiting for a call…');$('#mOut').textContent='?';
+  if(!keep)$('#mHist').innerHTML='';
+  $('#mCall').innerHTML='';
+  M.params.forEach((_,i)=>$('#mIn'+i).addEventListener('keydown',e=>{if(e.key==='Enter')mRun(true)}));
+}
+$('#mTabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b||mBusy)return;mi=+b.dataset.i;mSetup();mRun(false)});
+function mRun(animate,noHist){
+  if(mBusy)return;
+  const M=MACH[mi];
+  const raw=M.params.map((_,i)=>$('#mIn'+i).value.trim());
+  let vals, shown, isF=false;
+  if(M.kind==='num'){
+    if(raw.some(r=>r===''||isNaN(Number(r)))){$('#mEval').innerHTML='<span style="color:#FF8A7A">'+L('這部機器需要數字，請檢查輸入。','This machine needs numbers — check your input.')+'</span>';return}
+    vals=raw.map(Number); isF=raw.some(r=>r.includes('.')); shown=raw.map(r=>String(Number(r))+(r.includes('.')&&Number.isInteger(Number(r))?'.0':''));
+  } else { vals=raw; shown=raw.map(r=>'"'+r+'"'); }
+  const res=M.calc(vals);
+  const resS=M.kind==='num'?pyNum(res,isF):'"'+res+'"';
+  const fname=M.label.split('(')[0];
+  const callH=`result = ${fname}(<span class="ca">${shown.map(esc).join(', ')}</span>)`;
+  $('#mCall').innerHTML=callH;
+  const exprVals=M.kind==='num'?shown:raw;
+  const steps=[
+    ()=>{M.params.forEach((_,i)=>{const s=$('#mS'+i);s.textContent=shown[i];s.classList.remove('drop');void s.offsetWidth;if(animate)s.classList.add('drop')});$('#mBody').classList.add('busy');$('#mEval').textContent=L('接收變元中…','Receiving arguments…');$('#mOut').textContent='…'},
+    ()=>{$('#mEval').innerHTML='return '+esc(M.show(exprVals))+' → <span style="color:var(--c-ret)">'+esc(resS)+'</span>'},
+    ()=>{const o=$('#mOut');o.textContent=resS;o.classList.remove('pop');void o.offsetWidth;if(animate)o.classList.add('pop');$('#mBody').classList.remove('busy');
+      $('#mCall').innerHTML=callH+'\n<span class="t-com">'+L('# result 現在是 ','# result is now ')+'</span><span class="cr">'+esc(resS)+'</span>';
+      if(!noHist){const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(fname)}(<span class="arg">${esc(shown.join(', '))}</span>)</td><td class="retv">${esc(resS)}</td>`;
+      $('#mHist').prepend(tr); while($('#mHist').children.length>5)$('#mHist').lastChild.remove();}
+      mBusy=false; $('#mRun').disabled=false;}
+  ];
+  if(!animate||reduce){steps.forEach(f=>f());return}
+  mBusy=true;$('#mRun').disabled=true;
+  steps[0](); setTimeout(steps[1],700); setTimeout(steps[2],1400);
+}
+$('#mRun').addEventListener('click',()=>mRun(true));
+
+/* ============ 2. anatomy ============ */
+let curTip='param';
+function tips(){return {
+ def:[L('關鍵字','KEYWORD'),'def',L('告訴 Python「以下是一個函數定義」，是 define 的縮寫。Python 讀到 def 時只會記住這個函數，<b>不會立即執行</b>主體。','Tells Python “a function definition starts here” — short for <i>define</i>. When Python reads def it only remembers the function; it does <b>not</b> run the body yet.')],
+ name:[L('命名','NAMING'),L('函數名稱','Function name'),L('由你自行命名，規則與變數相同：只用英文字母、數字和底線，不可以數字開頭。好的名稱能說明函數的工作，例如 <code>rect_area</code>。','You choose it, using the same rules as variable names: letters, digits and underscores, not starting with a digit. A good name says what the function does, e.g. <code>rect_area</code>.')],
+ paren:[L('符號','SYMBOL'),L('括號 ( )','Brackets ( )'),L('用來放參數。即使函數沒有參數，括號也不能省略，例如 <code>def say_hello():</code>。','Hold the parameters. Even a function with no parameters still needs them, e.g. <code>def say_hello():</code>.')],
+ param:[L('輸入','INPUT'),L('參數 parameter','Parameter 參數'),L('函數定義中的「空位」，等待呼叫時接收數值。多個參數用逗號分隔。這裏有兩個參數：<span class="param">length</span> 和 <span class="param">width</span>。','An empty slot in the definition that receives a value when the function is called. Separate several parameters with commas. This one has two: <span class="param">length</span> and <span class="param">width</span>.')],
+ colon:[L('符號','SYMBOL'),L('冒號 :','Colon :'),L('標示函數標頭結束、主體開始。漏寫冒號會出現 <code>SyntaxError</code>。','Marks the end of the header and the start of the body. Forgetting it causes a <code>SyntaxError</code>.')],
+ indent:[L('結構','STRUCTURE'),L('縮排 indentation','Indentation 縮排'),L('通常是 4 個空格。有縮排的程式碼才屬於函數主體；缺少或不一致的縮排會出現 <code>IndentationError</code>。','Usually 4 spaces. Only indented lines belong to the function body; missing or inconsistent indentation causes an <code>IndentationError</code>.')],
+ return:[L('輸出','OUTPUT'),L('return 語句','The return statement'),L('把結果送回呼叫函數的地方，並<b>立即結束</b>函數。沒有 return 的函數會傳回 <code>None</code>。','Sends the result back to where the function was called and <b>ends the function immediately</b>. A function with no return gives back <code>None</code>.')],
+ ret:[L('輸出','OUTPUT'),L('傳回值 return value','Return value 傳回值'),L('return 後面的值。它會「取代」呼叫函數的位置：<code>rect_area(4, 3)</code> 變成 <span class="retv">12</span>，所以 size = 12。','The value after return. It replaces the function call: <code>rect_area(4, 3)</code> becomes <span class="retv">12</span>, so size = 12.')],
+ call:[L('執行','RUN'),L('呼叫函數','Calling the function'),L('寫出函數名稱加括號，函數主體才真正執行。只定義而不呼叫，甚麼都不會發生。','Write the name followed by brackets and the body finally runs. Define it without calling it and nothing happens.')],
+ arg:[L('輸入','INPUT'),L('變元 argument','Argument 變元'),L('呼叫時實際傳入的值。按次序對應：<span class="arg">4</span> 傳給 length，<span class="arg">3</span> 傳給 width。','The actual values passed in the call, matched by position: <span class="arg">4</span> goes to length, <span class="arg">3</span> goes to width.')]
+};}
+function showTip(k){
+  curTip=k;
+  document.querySelectorAll('#anat .tok').forEach(t=>t.classList.toggle('on',t.dataset.k===k));
+  const [tag,title,body]=tips()[k];
+  $('#tip').innerHTML=`<span class="tag">${tag}</span><h3>${title}</h3><p style="margin:0">${body}</p>`;
+}
+$('#anat').addEventListener('click',e=>{const t=e.target.closest('.tok');if(t)showTip(t.dataset.k)});
+document.querySelectorAll('#anat .tok').forEach(t=>{t.tabIndex=0;t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showTip(t.dataset.k)}})});
+
+function errLab(){
+  const c=$('#eColon').checked, i=$('#eIndent').checked, b=$('#eBye').checked;
+  const hi=L('你好!','Hello!'), bye=L('再見!','Bye!');
+  const L1='def greet()'+(c?':':''), L2=(i?'    ':'')+'print("'+hi+'")', L3=(b?'    ':'')+'print("'+bye+'")', L4='greet()';
+  let lines=[hl(L1),hl(L2),hl(L3),hl(L4)];
+  if(!c) lines[0]=hl(L1)+'<span class="mark"> </span>';
+  if(!i) lines[1]='<span class="mark">'+hl(L2)+'</span>';
+  $('#eCode').innerHTML=lines.map((l,n)=>'<span style="color:var(--code-dim)">'+(n+1)+'  </span>'+l).join('\n');
+  const E=L('錯誤','ERROR'), O=L('輸出','OUTPUT');
+  let out,ex;
+  if(!c){out=`<span class="hd">${E}</span><span class="err">  File "main.py", line 1\n    def greet()\n               ^\nSyntaxError: expected ':'</span>`;ex=L('漏了冒號，Python 無法辨認函數主體從哪裏開始，整個程式都不會執行。','Without the colon Python cannot tell where the body starts, so the whole program refuses to run.')}
+  else if(!i){out=`<span class="hd">${E}</span><span class="err">  File "main.py", line 2\n    print("${esc(hi)}")\n    ^\nIndentationError: expected an indented block\nafter function definition on line 1</span>`;ex=L('冒號後面必須最少有一行縮排的程式碼作為函數主體。','After the colon there must be at least one indented line to form the function body.')}
+  else if(b){out=`<span class="hd">${O}</span>${esc(hi)}\n${esc(bye)}`;ex=L('第 2、3 行都有縮排，兩行都是函數主體的一部分，呼叫 greet() 時一起執行。','Lines 2 and 3 are both indented, so both belong to the body and run together when greet() is called.')}
+  else{out=`<span class="hd">${O}</span>${esc(bye)}\n${esc(hi)}`;ex=L('第 3 行沒有縮排，所以它在函數之外，會先執行並印出「再見!」；然後第 4 行呼叫 greet() 才印出「你好!」。','Line 3 is not indented, so it is outside the function and runs first, printing “Bye!”. Only then does line 4 call greet(), which prints “Hello!”.')}
+  $('#eOut').innerHTML=out;$('#eExplain').textContent=ex;
+}
+['#eColon','#eIndent','#eBye'].forEach(s=>$(s).addEventListener('change',errLab));
+
+/* ============ 3. pick ============ */
+const PICK=[['def ',null],['bmi','n'],['(',null],['weight','p'],[', ',null],['height','p'],['):\n    return weight / height ** 2\n\nprint(',null],['bmi','n'],['(',null],['52','a'],[', ',null],['1.6','a'],['))\nprint(',null],['bmi','n'],['(',null],['70','a'],[', ',null],['1.75','a'],['))',null]];
+const CYC=['','p','a','n'];
+let pickState={}, pickChecked=false;
+function pickRender(){
+  $('#pickCode').innerHTML=PICK.map((p,i)=>p[1]?`<span class="pick" tabindex="0" role="button" data-i="${i}" data-s="${pickState[i]||''}">${esc(p[0])}</span>`:hl(p[0])).join('');
+  $('#pickFb').textContent='';$('#pickFb').className='fb';
+  if(pickChecked)pickCheck();
+}
+function cyc(el){const s=el.dataset.s;el.dataset.s=CYC[(CYC.indexOf(s)+1)%CYC.length];pickState[el.dataset.i]=el.dataset.s;el.classList.remove('good','bad')}
+$('#pickCode').addEventListener('click',e=>{const p=e.target.closest('.pick');if(p)cyc(p)});
+$('#pickCode').addEventListener('keydown',e=>{const p=e.target.closest('.pick');if(p&&(e.key==='Enter'||e.key===' ')){e.preventDefault();cyc(p)}});
+function pickCheck(){
+  pickChecked=true;
+  let right=0,total=0,blank=0;
+  document.querySelectorAll('#pickCode .pick').forEach(el=>{total++;const want=PICK[+el.dataset.i][1];if(!el.dataset.s)blank++;const ok=el.dataset.s===want;el.classList.toggle('good',ok);el.classList.toggle('bad',!ok);if(ok)right++});
+  const fb=$('#pickFb');
+  if(right===total){fb.className='fb ok';fb.innerHTML=L('全部正確！weight、height 是<b>參數</b>；52、1.6、70、1.75 是<b>變元</b>；bmi 是函數名稱。','All correct! weight and height are <b>parameters</b>; 52, 1.6, 70 and 1.75 are <b>arguments</b>; bmi is the function name.')}
+  else{fb.className='fb bad';fb.textContent=L(`答對 ${right} / ${total}`+(blank?`（仍有 ${blank} 個未標示）`:'')+'。提示：def 那一行括號內的是參數，呼叫時括號內的是變元。',`${right} / ${total} correct`+(blank?` (${blank} still unlabelled)`:'')+'. Hint: names in the brackets on the def line are parameters; values in the brackets of a call are arguments.')}
+}
+$('#pickCheck').addEventListener('click',pickCheck);
+$('#pickReset').addEventListener('click',()=>{pickState={};pickChecked=false;pickRender()});
+
+/* ============ 4. tracer ============ */
+function progs(){
+ const F=L('函數','function');
+ return [
+ {name:L('問候（無傳回值）','Greeting (no return)'),code:['def greet(name):','    print(f"Hello, {name}!")','','greet("Ava")','greet("Ben")'],steps:[
+  {l:1,n:L('Python 讀到 <b>def</b>：只會「記住」一個叫 <code>greet</code> 的函數，<b>主體暫時不會執行</b>。','Python reads <b>def</b>: it just <i>remembers</i> a function called <code>greet</code>. The <b>body does not run yet</b>.'),g:[['greet',F]],f:null,o:[]},
+  {l:4,n:L('呼叫 <code>greet(<span class="arg">"Ava"</span>)</code>：變元 <span class="arg">"Ava"</span> 傳給參數 <span class="param">name</span>，程式「跳」進函數。','Call <code>greet(<span class="arg">"Ava"</span>)</code>: the argument <span class="arg">"Ava"</span> is passed to the parameter <span class="param">name</span>, and the program jumps into the function.'),g:[['greet',F]],f:{fn:'greet',v:[['name','"Ava"','p']]},o:[]},
+  {l:2,n:L('執行函數主體：<span class="param">name</span> 的值是 "Ava"，所以印出 <code>Hello, Ava!</code>','Run the body: <span class="param">name</span> holds "Ava", so it prints <code>Hello, Ava!</code>'),g:[['greet',F]],f:{fn:'greet',v:[['name','"Ava"','p']]},o:['Hello, Ava!']},
+  {l:5,n:L('主體完成，函數結束（沒有 return，自動傳回 <code>None</code>），區域變數 name 隨之消失。接着再次呼叫，這次 <span class="param">name</span> 收到 <span class="arg">"Ben"</span>。','The body is finished, so the function ends (no return, so it gives back <code>None</code>) and the local variable name disappears. Next call: this time <span class="param">name</span> receives <span class="arg">"Ben"</span>.'),g:[['greet',F]],f:{fn:'greet',v:[['name','"Ben"','p']]},o:['Hello, Ava!']},
+  {l:2,n:L('同一段主體再執行一次，但參數的值不同，所以輸出也不同。','The same body runs again, but the parameter has a different value, so the output is different.'),g:[['greet',F]],f:{fn:'greet',v:[['name','"Ben"','p']]},o:['Hello, Ava!','Hello, Ben!']},
+  {l:0,n:L('程式結束。<b>定義一次、呼叫兩次</b>：這就是函數的重用性。','Program ends. <b>Defined once, called twice</b>: that is reusability.'),g:[['greet',F]],f:null,o:['Hello, Ava!','Hello, Ben!']}
+ ]},
+ {name:L('加法（有傳回值）','Add (with return)'),code:['def add(a, b):','    return a + b','','result = add(5, 3)','print(result)'],steps:[
+  {l:1,n:L('記住函數 <code>add</code>，主體暫不執行。','Remember the function <code>add</code>; the body does not run yet.'),g:[['add',F]],f:null,o:[]},
+  {l:4,n:L('要計算 result，先要呼叫 <code>add(<span class="arg">5</span>, <span class="arg">3</span>)</code>。變元按次序傳給參數：<span class="param">a</span> ← 5，<span class="param">b</span> ← 3。','To work out result, Python first calls <code>add(<span class="arg">5</span>, <span class="arg">3</span>)</code>. Arguments go to parameters in order: <span class="param">a</span> ← 5, <span class="param">b</span> ← 3.'),g:[['add',F]],f:{fn:'add',v:[['a','5','p'],['b','3','p']]},o:[]},
+  {l:2,n:L('計算 a + b = 5 + 3 = 8。<b>return</b> 把 <span class="retv">8</span> 傳回呼叫它的地方，函數立即結束。','Compute a + b = 5 + 3 = 8. <b>return</b> sends <span class="retv">8</span> back to where the function was called, and the function ends at once.'),g:[['add',F]],f:{fn:'add',v:[['a','5','p'],['b','3','p']],r:'8'},o:[]},
+  {l:4,n:L('傳回值 <span class="retv">8</span> 取代了 <code>add(5, 3)</code>，這行變成 <code>result = 8</code>。函數的區域變數 a、b 已消失。','The return value <span class="retv">8</span> replaces <code>add(5, 3)</code>, so the line becomes <code>result = 8</code>. The local variables a and b are gone.'),g:[['add',F],['result','8']],f:null,o:[]},
+  {l:5,n:L('印出 result 的值。','Print the value of result.'),g:[['add',F],['result','8']],f:null,o:['8']}
+ ]},
+ {name:L('傳回多個值','Multiple return values'),code:['def min_max(nums):','    smallest = min(nums)','    largest = max(nums)','    return smallest, largest','','lo, hi = min_max([7, 2, 9])',L('print("最小:", lo, "最大:", hi)','print("Min:", lo, "Max:", hi)')],steps:[
+  {l:1,n:L('記住函數 <code>min_max</code>。','Remember the function <code>min_max</code>.'),g:[['min_max',F]],f:null,o:[]},
+  {l:6,n:L('呼叫 <code>min_max(<span class="arg">[7, 2, 9]</span>)</code>：整個串列作為變元傳給參數 <span class="param">nums</span>。','Call <code>min_max(<span class="arg">[7, 2, 9]</span>)</code>: the whole list is the argument, passed to the parameter <span class="param">nums</span>.'),g:[['min_max',F]],f:{fn:'min_max',v:[['nums','[7, 2, 9]','p']]},o:[]},
+  {l:2,n:L('在函數內建立<b>區域變數</b> smallest = 2。','Create the <b>local variable</b> smallest = 2 inside the function.'),g:[['min_max',F]],f:{fn:'min_max',v:[['nums','[7, 2, 9]','p'],['smallest','2','l']]},o:[]},
+  {l:3,n:L('建立區域變數 largest = 9。','Create the local variable largest = 9.'),g:[['min_max',F]],f:{fn:'min_max',v:[['nums','[7, 2, 9]','p'],['smallest','2','l'],['largest','9','l']]},o:[]},
+  {l:4,n:L('return 後面用<b>逗號</b>分隔兩個值，一次過傳回 <span class="retv">2, 9</span>。','Two values separated by a <b>comma</b> after return are sent back together: <span class="retv">2, 9</span>.'),g:[['min_max',F]],f:{fn:'min_max',v:[['nums','[7, 2, 9]','p'],['smallest','2','l'],['largest','9','l']],r:'(2, 9)'},o:[]},
+  {l:6,n:L('兩個傳回值按次序分別存入 lo 和 hi。注意：smallest、largest 是區域變數，函數結束後不能在外面使用。','The two return values go into lo and hi in order. Note: smallest and largest are local, so they cannot be used outside once the function ends.'),g:[['min_max',F],['lo','2'],['hi','9']],f:null,o:[]},
+  {l:7,n:L('印出結果。','Print the result.'),g:[['min_max',F],['lo','2'],['hi','9']],f:null,o:[L('最小: 2 最大: 9','Min: 2 Max: 9')]}
+ ]},
+ {name:L('return 提早結束','Early return'),code:['def check(score):','    if score >= 50:','        return "'+L('合格','Pass')+'"','    return "'+L('不合格','Fail')+'"','','print(check(72))','print(check(35))'],steps:[
+  {l:1,n:L('記住函數 <code>check</code>。','Remember the function <code>check</code>.'),g:[['check',F]],f:null,o:[]},
+  {l:6,n:L('呼叫 <code>check(<span class="arg">72</span>)</code>：<span class="param">score</span> ← 72。','Call <code>check(<span class="arg">72</span>)</code>: <span class="param">score</span> ← 72.'),g:[['check',F]],f:{fn:'check',v:[['score','72','p']]},o:[]},
+  {l:2,n:L('72 >= 50 是 True，進入 if 區塊。','72 >= 50 is True, so enter the if block.'),g:[['check',F]],f:{fn:'check',v:[['score','72','p']]},o:[]},
+  {l:3,n:L('執行 return "合格"：函數<b>立即結束</b>，第 4 行完全不會執行。','Run return "Pass": the function <b>ends immediately</b>, so line 4 never runs.'),g:[['check',F]],f:{fn:'check',v:[['score','72','p']],r:L('"合格"','"Pass"')},o:[]},
+  {l:6,n:L('傳回值取代 check(72)，print 印出「合格」。','The return value replaces check(72), and print shows “Pass”.'),g:[['check',F]],f:null,o:[L('合格','Pass')]},
+  {l:7,n:L('呼叫 <code>check(<span class="arg">35</span>)</code>：<span class="param">score</span> ← 35。','Call <code>check(<span class="arg">35</span>)</code>: <span class="param">score</span> ← 35.'),g:[['check',F]],f:{fn:'check',v:[['score','35','p']]},o:[L('合格','Pass')]},
+  {l:2,n:L('35 >= 50 是 False，跳過 if 區塊（第 3 行）。','35 >= 50 is False, so skip the if block (line 3).'),g:[['check',F]],f:{fn:'check',v:[['score','35','p']]},o:[L('合格','Pass')]},
+  {l:4,n:L('執行 return "不合格"。','Run return "Fail".'),g:[['check',F]],f:{fn:'check',v:[['score','35','p']],r:L('"不合格"','"Fail"')},o:[L('合格','Pass')]},
+  {l:7,n:L('印出「不合格」，程式結束。','Print “Fail”. The program ends.'),g:[['check',F]],f:null,o:[L('合格','Pass'),L('不合格','Fail')]}
+ ]}
+];}
+let PROGS=progs(), pi=0, si=0, prevVars=new Set();
+function trTabs(){ $('#trTabs').innerHTML=PROGS.map((p,i)=>`<button class="tab" role="tab" aria-selected="${i===pi}" data-i="${i}">${p.name}</button>`).join(''); }
+$('#trTabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;pi=+b.dataset.i;si=0;prevVars=new Set();trTabs();trRender()});
+function trRender(){
+  const P=PROGS[pi], S=P.steps[si], F=L('函數','function');
+  $('#trLines').innerHTML=P.code.map((l,i)=>`<div class="ln${S.l===i+1?' cur':''}"><span class="no">${i+1}</span><span class="ar">▶</span><span>${hl(l)||' '}</span></div>`).join('');
+  $('#trNote').innerHTML=`<span class="sc">${L('步驟','Step')} ${si+1} / ${P.steps.length}</span>${S.n}`;
+  const seen=new Set();
+  const row=(k,v,cls,scope)=>{const key=scope+k+'='+v;seen.add(key);const isNew=!prevVars.has(key);
+    return `<tr class="${isNew&&si>0?'new':''}"><td class="${cls==='p'?'param':''}">${esc(k)}${cls==='p'?' <span class="small muted">'+L('參數','parameter')+'</span>':''}</td><td>${v===F?'<i class="muted">'+F+'</i>':esc(v)}</td></tr>`};
+  let h=`<div class="frame"><div class="fh"><span>${L('全域變數（主程式）','Global variables (main program)')}</span></div><table>${S.g.map(([k,v])=>row(k,v,'g','G')).join('')}</table></div>`;
+  if(S.f){
+    h+=`<div class="frame fn"><div class="fh"><span>${esc(S.f.fn)}() ${L('執行中 · 區域變數','running · local variables')}</span><span>↳</span></div><table>${S.f.v.map(([k,v,c])=>row(k,v,c,'F')).join('')}${S.f.r?`<tr class="rt"><td>${L('傳回','return')} →</td><td>${esc(S.f.r)}</td></tr>`:''}</table></div>`;
+  } else {
+    h+=`<div class="frame"><div class="fh"><span>${L('函數區域','Function scope')}</span></div><div class="empty">${L('目前沒有函數在執行','No function is running')}</div></div>`;
+  }
+  $('#trFrames').innerHTML=h; prevVars=seen;
+  $('#trOut').textContent=S.o.join('\n');
+  $('#trPrev').disabled=si===0; $('#trNext').disabled=si===P.steps.length-1;
+}
+$('#trNext').addEventListener('click',()=>{if(si<PROGS[pi].steps.length-1){si++;trRender()}});
+$('#trPrev').addEventListener('click',()=>{if(si>0){si--;trRender()}});
+$('#trReset').addEventListener('click',()=>{si=0;prevVars=new Set();trRender()});
+document.addEventListener('keydown',e=>{
+  if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;
+  const r=$('#trace').getBoundingClientRect(); if(r.top>window.innerHeight*0.6||r.bottom<window.innerHeight*0.3)return;
+  if(e.key==='ArrowRight'){$('#trNext').click()} else if(e.key==='ArrowLeft'){$('#trPrev').click()}
+});
+
+/* ============ 5. turtle ============ */
+const cv=$('#tCanvas'), ctx=cv.getContext('2d');
+let shapes=[{n:3,L:100},{n:4,L:100},{n:6,L:100}], anim=null;
+function sizeCanvas(){const d=window.devicePixelRatio||1;cv.width=400*d;cv.height=400*d;ctx.setTransform(d,0,0,d,0,0)}
+function pts(n,Ln){let x=200-Ln/2,y=380,h=0;const p=[[x,y,h]];for(let i=0;i<n;i++){x+=Ln*Math.cos(h);y+=Ln*Math.sin(h);h-=2*Math.PI/n;p.push([x,y,h])}return p}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function drawTurtle(){
+  const ink=css('--ink'),acc=css('--accent'),line=css('--line');
+  ctx.clearRect(0,0,400,400);
+  ctx.strokeStyle=line;ctx.lineWidth=1;
+  for(let g=40;g<400;g+=40){ctx.beginPath();ctx.moveTo(g,0);ctx.lineTo(g,400);ctx.moveTo(0,g);ctx.lineTo(400,g);ctx.stroke()}
+  let head=null;
+  shapes.forEach((s,idx)=>{
+    const p=pts(s.n,s.L), isCur=idx===shapes.length-1;
+    const prog=(anim&&isCur)?anim.p:s.n;
+    ctx.strokeStyle=isCur?acc:ink;ctx.lineWidth=isCur?2.5:1.6;ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(p[0][0],p[0][1]);
+    const full=Math.floor(prog);
+    for(let i=1;i<=full;i++)ctx.lineTo(p[i][0],p[i][1]);
+    let hx=p[full][0],hy=p[full][1],hh=full<s.n?p[full][2]:p[s.n][2];
+    if(prog<s.n&&prog>full){const f=prog-full;hx=p[full][0]+(p[full+1][0]-p[full][0])*f;hy=p[full][1]+(p[full+1][1]-p[full][1])*f;ctx.lineTo(hx,hy)}
+    ctx.stroke();
+    if(isCur)head=[hx,hy,hh];
+  });
+  if(!head)head=[200,380,0];
+  const [x,y,h]=head;ctx.save();ctx.translate(x,y);ctx.rotate(h);ctx.fillStyle=css('--param');
+  ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(-7,-7);ctx.lineTo(-3,0);ctx.lineTo(-7,7);ctx.closePath();ctx.fill();ctx.restore();
+}
+function angStr(n){const a=360/n;return Number.isInteger(a)?String(a):a.toFixed(2)}
+function tCode(){
+  const n=+$('#tSides').value,Ln=+$('#tLen').value;
+  $('#tCall').innerHTML=`draw_shape(<span class="arg">${n}</span>, <span class="arg">${Ln}</span>)  <span class="muted small">${L('角度','angle')} = 360 / ${n} = ${angStr(n)}°</span>`;
+  const A=['import turtle','t = turtle.Turtle()'];
+  shapes.forEach(s=>{A.push('','for i in range('+s.n+'):','    t.forward('+s.L+')','    t.left('+angStr(s.n)+')'+(Number.isInteger(360/s.n)?'':L('  # 自行計算 360÷','  # work out 360÷')+s.n+L('',' by hand')))});
+  A.push('','turtle.done()');
+  const B=['import turtle','t = turtle.Turtle()','','def draw_shape(sides, length):','    angle = 360 / sides','    for i in range(sides):','        t.forward(length)','        t.left(angle)',''];
+  shapes.forEach(s=>B.push('draw_shape('+s.n+', '+s.L+')'));
+  B.push('','turtle.done()');
+  $('#tA').innerHTML=hl(A.join('\n'));
+  $('#tB').innerHTML=hl(B.join('\n')).replace(/\b(sides|length)\b/g,'<span class="cp">$1</span>');
+  const a=A.filter(l=>l.trim()).length,b=B.filter(l=>l.trim()).length,mx=Math.max(a,b);
+  $('#barA').style.width=(a/mx*100)+'%';$('#barB').style.width=(b/mx*100)+'%';
+  $('#numA').textContent=a+L(' 行',' lines');$('#numB').textContent=b+L(' 行',' lines');
+  const k=shapes.length;
+  $('#advReuse').textContent=k?L(`${k} 個形狀：${k} 個迴圈 vs 1 個函數`,`${k} shapes: ${k} loops vs 1 function`):L('先畫一些形狀','Draw some shapes first');
+  $('#advMaint').textContent=L(`要修改：版本 A ${k} 處，版本 B 1 處`,`To change: ${k} places in A, 1 place in B`);
+  const odd=shapes.filter(s=>!Number.isInteger(360/s.n)).length;
+  $('#advAbs').textContent=odd?L(`版本 A 有 ${odd} 個角度要人手計算`,`Version A has ${odd} angle(s) worked out by hand`):L('試畫 7 邊形，看看版本 A','Try a 7-sided shape and look at A');
+}
+function tDraw(){
+  if(anim)return;
+  shapes.push({n:+$('#tSides').value,L:+$('#tLen').value});
+  if(shapes.length>8)shapes.shift();
+  tCode();
+  if(reduce){drawTurtle();return}
+  const n=shapes[shapes.length-1].n, dur=n*320; const t0=performance.now();
+  anim={p:0};$('#tDraw').disabled=true;
+  (function step(t){anim.p=Math.min(n,(t-t0)/dur*n);drawTurtle();if(anim.p<n)requestAnimationFrame(step);else{anim=null;drawTurtle();$('#tDraw').disabled=false}})(t0);
+}
+$('#tSides').addEventListener('input',e=>{$('#tSidesO').textContent=e.target.value;tCode()});
+$('#tLen').addEventListener('input',e=>{$('#tLenO').textContent=e.target.value;tCode()});
+$('#tDraw').addEventListener('click',tDraw);
+$('#tClear').addEventListener('click',()=>{if(anim)return;shapes=[];tCode();drawTurtle()});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawTurtle);
+new MutationObserver(drawTurtle).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ============ 6. practice ============ */
+function exData(){
+ const fb=L('魚蛋','fish balls'), pb=L('菠蘿包','pineapple bun');
+ return [
+ {title:L('練習 1：溫度轉換','Exercise 1: Temperature conversion'),orig:'c1 = 25\nprint(c1 * 9 / 5 + 32)\nc2 = 30\nprint(c2 * 9 / 5 + 32)\nc3 = 18\nprint(c3 * 9 / 5 + 32)',
+  tpl:'def [[a1]](c):\n    return [[a2]]\n\nprint(to_f([[a3]]))\nprint(to_f([[a4]]))\nprint(to_f([[a5]]))',
+  blanks:{a1:[0,['to_f','c','print','def']],a2:[1,['c1 * 9 / 5 + 32','c * 9 / 5 + 32','print(c * 9 / 5 + 32)','9 / 5 + 32']],a3:[1,['18','25','30','c1']],a4:[2,['18','25','30','c2']],a5:[0,['18','25','30','c3']]},
+  out:'77.0\n86.0\n64.4',why:L('函數把「攝氏轉華氏」的公式寫一次，之後只需以不同變元呼叫。將來要修改公式，也只需改一處。','The function writes the Celsius-to-Fahrenheit formula once; after that you just call it with different arguments. If the formula ever changes, you edit one place.')},
+ {title:L('練習 2：小食部半價日','Exercise 2: Tuck shop half-price day'),orig:`discount = 0.5\n\nitem1 = "${fb}"\ntotal1 = 8.0 * 3 * (1 - discount)\nprint(item1, total1)\n\nitem2 = "${pb}"\ntotal2 = 7.5 * 2 * (1 - discount)\nprint(item2, total2)`,
+  tpl:`def order_total(price, qty, discount):\n    total = [[b1]]\n    return [[b2]]\n\nprint("${fb}", order_total([[b3]], [[b4]], 0.5))\nprint("${pb}", order_total(7.5, [[b5]], 0.5))`,
+  blanks:{b1:[0,['price * qty * (1 - discount)','8.0 * 3 * (1 - discount)','price * qty * discount','total1']],b2:[0,['total','price','print(total)','order_total']],b3:[1,['3','8.0','0.5','"'+fb+'"']],b4:[0,['3','8.0','2','1']],b5:[2,['3','7.5','2','1']]},
+  out:`${fb} 12.0\n${pb} 7.5`,why:L('三個參數的次序很重要：order_total(8.0, 3, 0.5) 中，8.0 → price、3 → qty、0.5 → discount。對調次序會得出錯誤結果。','The order of the three parameters matters: in order_total(8.0, 3, 0.5), 8.0 → price, 3 → qty, 0.5 → discount. Swap them and you get the wrong answer.')}
+];}
+let EX=exData(), exChecked={};
+function exRender(){
+  const saved={};document.querySelectorAll('#exWrap select').forEach(s=>saved[s.id]=s.selectedIndex);
+  $('#exWrap').innerHTML=EX.map((ex,xi)=>{
+    const parts=ex.tpl.split(/\[\[(\w+)\]\]/);
+    const code=parts.map((p,i)=>i%2? `<select id="ex${xi}_${p}" data-k="${p}" aria-label="${p}"><option value="">(${p})</option>${ex.blanks[p][1].map((o,j)=>`<option value="${j}">${esc(o)}</option>`).join('')}</select>`:hl(p)).join('');
+    return `<div class="panel"><h3>${ex.title}</h3><div class="two">
+      <div><div class="lbl given">${L('原本的程式（有重複）','ORIGINAL PROGRAM (REPETITIVE)')}</div><pre class="code">${hl(ex.orig)}</pre></div>
+      <div><div class="lbl given">${L('以函數改寫','REWRITTEN WITH A FUNCTION')}</div><pre class="code" id="exc${xi}">${code}</pre>
+      <div class="ctrls"><button class="btn" data-x="${xi}" data-act="check">${L('檢查答案','Check answers')}</button><button class="btn ghost" data-x="${xi}" data-act="reset">${L('重設','Reset')}</button></div>
+      <div class="fb" id="exfb${xi}" aria-live="polite"></div></div></div></div>`}).join('');
+  Object.entries(saved).forEach(([id,v])=>{const s=document.getElementById(id);if(s)s.selectedIndex=v});
+  Object.keys(exChecked).forEach(xi=>exCheck(+xi));
+}
+function exCheck(xi){
+  const ex=EX[xi];exChecked[xi]=true;
+  const sels=[...document.querySelectorAll('#exc'+xi+' select')];
+  let ok=0;sels.forEach(s=>{const good=s.value!==''&&+s.value===ex.blanks[s.dataset.k][0];s.className=good?'ok':'bad';if(good)ok++});
+  const fb=$('#exfb'+xi);
+  if(ok===sels.length){fb.className='fb ok';fb.innerHTML=`${L('全部正確！執行結果：','All correct! Output:')}<pre class="code" style="margin:6px 0">${esc(ex.out)}</pre><span class="muted">${ex.why}</span>`}
+  else{fb.className='fb bad';fb.textContent=L(`答對 ${ok} / ${sels.length}，紅框的空格要再想想。`,`${ok} / ${sels.length} correct — have another think about the red boxes.`)}
+}
+$('#exWrap').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-x]');if(!b)return;const xi=+b.dataset.x;
+  if(b.dataset.act==='reset'){delete exChecked[xi];document.querySelectorAll('#exc'+xi+' select').forEach(s=>{s.value='';s.className=''});$('#exfb'+xi).innerHTML='';$('#exfb'+xi).className='fb';return}
+  exCheck(xi);
+});
+$('#exWrap').addEventListener('change',e=>{if(e.target.tagName==='SELECT')e.target.className=''});
+
+/* ============ 7. quiz ============ */
+function quizData(){return [
+ {q:L('以下程式的輸出是甚麼？','What is the output of this program?'),code:'def f(x, y):\n    return x * 2 + y\n\nprint(f(3, 4))',o:['10','14','18','7'],a:0,e:L('x ← 3、y ← 4。乘法先於加法：3 * 2 = 6，再加 4 得 10。','x ← 3, y ← 4. Multiplication comes before addition: 3 * 2 = 6, plus 4 gives 10.')},
+ {q:L('以下哪個是正確的 Python 函數定義？','Which is a correct Python function definition?'),o:['def total(a, b)\n    return a + b','def total(a, b):\nreturn a + b','def total(a, b):\n    return a + b','define total(a, b):\n    return a + b'],a:2,pre:true,e:L('A 缺少冒號；B 缺少縮排；D 的關鍵字應是 def，不是 define。','A is missing the colon; B is missing the indentation; D should use the keyword def, not define.')},
+ {q:L('關於以下程式，哪項描述正確？','Which statement about this program is correct?'),code:'def welcome(user):\n    print("'+L('歡迎','Welcome')+'", user)\n\nwelcome("Chloe")',o:L(['user 是變元，"Chloe" 是參數','user 是參數，"Chloe" 是變元','兩者都是參數','welcome 是參數'],['user is an argument, "Chloe" is a parameter','user is a parameter, "Chloe" is an argument','Both are parameters','welcome is a parameter']),a:1,e:L('定義中括號內的 user 是參數；呼叫時實際傳入的 "Chloe" 是變元。','user, in the brackets of the definition, is a parameter; "Chloe", the actual value passed in the call, is an argument.')},
+ {q:L('以下程式的輸出是甚麼？','What is the output of this program?'),code:'def tell(n):\n    print(n + 1)\n\nx = tell(4)\nprint(x)',o:L(['5 然後 None','5 然後 5','只有 5','出現錯誤'],['5, then None','5, then 5','Only 5','An error']),a:0,e:L('tell 會印出 5，但它沒有 return，所以傳回 None。x 得到 None，第二個 print 印出 None。','tell prints 5, but it has no return, so it gives back None. x becomes None, and the second print shows None.')},
+ {q:L('以下程式的輸出是甚麼？','What is the output of this program?'),code:'def find(n):\n    for i in range(n):\n        if i == 2:\n            return i * 10\n    return -1\n\nprint(find(5))',o:['40','20','-1','0'],a:1,e:L('當 i 等於 2 時執行 return 20，函數立即結束，迴圈不會繼續，最後的 return -1 也不會執行。','When i equals 2, return 20 runs and the function ends immediately: the loop stops and return -1 is never reached.')},
+ {q:L('以下程式的輸出是甚麼？','What is the output of this program?'),code:'def swap(a, b):\n    return b, a\n\nx, y = 1, 9\nx, y = swap(x, y)\nprint(x, y)',o:['1 9','9 1','9 9','(9, 1)'],a:1,e:L('swap 一次傳回兩個值 9 和 1，按次序存入 x 和 y，所以印出 9 1。','swap returns two values, 9 and 1, which go into x and y in order, so it prints 9 1.')},
+ {q:L('以下哪一項<b>不是</b>使用函數的優點？','Which of these is <b>not</b> an advantage of using functions?'),o:L(['減少重複的程式碼','方便修改和維護','令程式一定執行得更快','容易擴充新功能'],['Less repeated code','Easier to change and maintain','The program always runs faster','Easy to extend with new features']),a:2,e:L('函數主要改善程式的結構、重用性和可維護性，並不保證執行速度更快。','Functions improve structure, reusability and maintainability; they do not guarantee faster execution.')}
+];}
+let QZ=quizData(), answered={};
+function quizRender(){
+  $('#quizWrap').innerHTML=QZ.map((q,i)=>`<div class="q" id="q${i}"><span class="qn">${L('第 '+(i+1)+' 題','Question '+(i+1))}</span><p>${q.q}</p>${q.code?`<pre class="code" style="margin-bottom:12px">${hl(q.code)}</pre>`:''}
+   <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-q="${i}" data-j="${j}"><span class="L">${'ABCD'[j]}</span>${q.pre?`<pre>${hl(o)}</pre>`:`<span>${esc(o)}</span>`}</button>`).join('')}</div><div class="exslot"></div></div>`).join('');
+  Object.entries(answered).forEach(([i,j])=>markQ(+i,j));
+  score();
+}
+function markQ(i,j){
+  const q=QZ[i], right=j===q.a, box=$('#q'+i);
+  box.querySelectorAll('.opt').forEach(o=>{o.disabled=true;const k=+o.dataset.j;if(k===q.a)o.classList.add('right');else if(k===j)o.classList.add('wrong')});
+  box.querySelector('.exslot').innerHTML=`<div class="expl ${right?'':'wrong'}"><b>${right?L('答對了。','Correct. '):L('再想想。','Not quite. ')}</b>${L('正確答案是 ','The answer is ')}${'ABCD'[q.a]}${L('。','. ')}${q.e}</div>`;
+}
+function score(){const n=Object.keys(answered).length,c=Object.entries(answered).filter(([i,j])=>QZ[i].a===j).length,T=QZ.length;
+  $('#scoreNum').textContent=`${c} / ${T}`;
+  $('#scoreMsg').textContent=n<T?L(`已答 ${n} 題，還有 ${T-n} 題`,`${n} answered, ${T-n} to go`):(c===T?L('全部答對，函數概念已經掌握！','All correct — you have got functions!'):c>=5?L('不錯！回看答錯的題目的解釋。','Good work! Read the explanations for the ones you missed.'):L('建議重温環節 3 和 4，再試一次。','Review Parts 3 and 4, then try again.'));}
+$('#quizWrap').addEventListener('click',e=>{
+  const b=e.target.closest('.opt');if(!b)return;const i=+b.dataset.q,j=+b.dataset.j;if(i in answered)return;
+  answered[i]=j;markQ(i,j);score();
+});
+$('#quizReset').addEventListener('click',()=>{answered={};quizRender()});
+
+/* ============ language switch ============ */
+function renderAll(first){
+  applyStatic();
+  PROGS=progs();EX=exData();QZ=quizData();
+  if(first){mSetup();mRun(false)} else {mSetup(true);mRun(false,true)}
+  showTip(curTip);errLab();pickRender();trTabs();trRender();tCode();exRender();quizRender();
+}
+function setLang(l){if(l===LANG)return;LANG=l;try{localStorage.setItem('fnlab-lang',l)}catch(_){}renderAll(false)}
+$('#lzh').addEventListener('click',()=>setLang('zh'));
+$('#len').addEventListener('click',()=>setLang('en'));
+
+sizeCanvas();renderAll(true);drawTurtle();
+})();
+</script>
+
+</body>
+</html>
