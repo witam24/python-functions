@@ -786,20 +786,32 @@ function tCode(){
   const odd=shapes.filter(s=>!Number.isInteger(360/s.n)).length;
   $('#advAbs').textContent=odd?L(`版本 A 有 ${odd} 個角度要人手計算`,`Version A has ${odd} angle(s) worked out by hand`):L('試畫 7 邊形，看看版本 A','Try a 7-sided shape and look at A');
 }
+let animId=null, animTimer=null;
+function stopAnim(){
+  if(animId)cancelAnimationFrame(animId);
+  if(animTimer)clearTimeout(animTimer);
+  animId=null;animTimer=null;anim=null;$('#tDraw').disabled=false;
+}
 function tDraw(){
-  if(anim)return;
+  stopAnim();                 // 上一個動畫未完成也可即時再畫
   shapes.push({n:+$('#tSides').value,L:+$('#tLen').value});
   if(shapes.length>8)shapes.shift();
   tCode();
   if(reduce){drawTurtle();return}
-  const n=shapes[shapes.length-1].n, dur=n*320; const t0=performance.now();
-  anim={p:0};$('#tDraw').disabled=true;
-  (function step(t){anim.p=Math.min(n,(t-t0)/dur*n);drawTurtle();if(anim.p<n)requestAnimationFrame(step);else{anim=null;drawTurtle();$('#tDraw').disabled=false}})(t0);
+  const n=shapes[shapes.length-1].n, dur=n*320, t0=performance.now();
+  anim={p:0};
+  animTimer=setTimeout(()=>{stopAnim();drawTurtle()},dur+1500);  // 動畫被中斷時的保險
+  animId=requestAnimationFrame(function step(t){
+    if(!anim)return;
+    anim.p=Math.min(n,(t-t0)/dur*n);drawTurtle();
+    if(anim.p<n)animId=requestAnimationFrame(step);else{stopAnim();drawTurtle()}
+  });
 }
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&anim){stopAnim();drawTurtle()}});
 $('#tSides').addEventListener('input',e=>{$('#tSidesO').textContent=e.target.value;tCode()});
 $('#tLen').addEventListener('input',e=>{$('#tLenO').textContent=e.target.value;tCode()});
 $('#tDraw').addEventListener('click',tDraw);
-$('#tClear').addEventListener('click',()=>{if(anim)return;shapes=[];tCode();drawTurtle()});
+$('#tClear').addEventListener('click',()=>{stopAnim();shapes=[];tCode();drawTurtle()});
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawTurtle);
 new MutationObserver(drawTurtle).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
